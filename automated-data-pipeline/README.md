@@ -12,7 +12,7 @@
 
 ## Project Description
 
-This pipeline tracks daily weather conditions in Tallahassee and Miami for local planning and trend analysis. It automatically fetches high temperature, low temperature, and precipitation from a public weather API once per run and stores the results in a local CSV. Running it repeatedly builds up a timestamped historical record that can be loaded and analyzed without any manual data entry.
+This pipeline tracks daily weather conditions in Tallahassee for local planning and trend analysis. It automatically fetches high temperature, low temperature, and precipitation from a public weather API once per run and stores the results in a local CSV. Running it repeatedly builds up a timestamped historical record that can be loaded and analyzed without any manual data entry.
 
 ---
 
