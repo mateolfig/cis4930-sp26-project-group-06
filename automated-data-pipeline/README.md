@@ -82,35 +82,3 @@ Saved 21 record(s) to data/processed/weather.csv at 2026-04-08 18:08:28
 Pipeline complete! Fetched 21 forecast records.
 ```
 
----
-
-## Data Output
-
-Results are saved to `data/processed/weather.csv` with the following schema:
-
-| Column | Type | Description |
-|--------|------|-------------|
-| `city` | string | City name (e.g., "Tallahassee") |
-| `date` | string | Forecast date in YYYY-MM-DD format |
-| `temperature_max` | float | Max temperature in °C |
-| `temperature_min` | float | Min temperature in °C |
-| `precipitation` | float | Total precipitation in mm |
-| `fetched_at` | string | Timestamp of when the data was fetched |
-
-Each pipeline run appends 7 rows per city (one per forecast day). Running daily will accumulate historical forecast data over time.
-
----
-
-## Project Structure
-
-```
-automated-data-pipeline/
-├── README.md
-├── src/
-│   ├── pipeline.py      # Main entry point — orchestrates fetch and save
-│   ├── api_client.py    # HTTP requests, JSON parsing, error handling
-│   └── storage.py       # CSV read/write logic
-└── data/
-    └── processed/
-        └── weather.csv  # Accumulated forecast data
-```
