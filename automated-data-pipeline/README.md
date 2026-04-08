@@ -14,7 +14,7 @@
 
 ## Project Description
 
-This pipeline automatically fetches a 7-day daily weather forecast for Tallahassee, FL using the Open-Meteo API and saves the results to a local CSV file. The goal is to build up a timestamped historical record of forecasts — useful for local planning, comparing predicted vs. actual conditions, or studying seasonal weather trends over time. Each time the pipeline runs it appends a new batch of rows so the dataset grows without overwriting previous data.
+This pipeline automatically fetches 7-day daily weather forecasts for multiple Florida cities (Tallahassee, Miami, and Orlando) using the Open-Meteo API and saves the results to a local CSV file. The goal is to build up a timestamped historical record of forecasts — useful for local planning, comparing predicted vs. actual conditions, or studying seasonal weather trends over time. Each time the pipeline runs it appends a new batch of rows so the dataset grows without overwriting previous data.
 
 ---
 
@@ -29,6 +29,17 @@ This pipeline automatically fetches a 7-day daily weather forecast for Tallahass
   - `daily=temperature_2m_max,temperature_2m_min,precipitation_sum` — fields returned per day
   - `timezone=America/New_York` — localizes dates to Eastern time
 
+### API Constraints
+
+| Constraint | Details |
+|------------|---------|
+| **Authentication** | None required — fully public API |
+| **Rate Limit** | ~10,000 requests/day (generous for our use case) |
+| **Pagination** | Not applicable — each request returns all 7 forecast days in one response |
+| **Response Format** | JSON with nested `daily` object containing arrays for each weather variable |
+
+We chose Open-Meteo because it requires no API key, has no sign-up process, and provides reliable global weather data, making it easy for all team members to run the pipeline immediately after cloning.
+
 ---
 
 ## Data Pipeline Goals
@@ -38,3 +49,68 @@ This pipeline automatically fetches a 7-day daily weather forecast for Tallahass
 3. **Stamp every batch with a fetch timestamp** — a `fetched_at` column is added to every row so you can tell which pipeline run produced each record and compare forecasts made on different dates.
 4. **Support reloading the stored data** — `load_csv()` reads the full accumulated CSV back into a DataFrame so downstream scripts or notebooks can analyze it without duplicating I/O logic.
 5. **Run without credentials** — the pipeline uses Open-Meteo, a fully public API, so any team member can run it immediately after cloning the repo with no setup beyond `pip install`.
+
+---
+
+## How to Run
+
+### Prerequisites
+
+```bash
+pip install requests pandas
+```
+
+### Running the Pipeline
+
+From the `automated-data-pipeline/` directory:
+
+```bash
+python3 src/pipeline.py
+```
+
+### Example Output
+
+```
+Starting weather data pipeline...
+Fetching forecasts for 3 cities...
+
+Fetch: Tallahassee...
+Fetch: Miami...
+Fetch: Orlando...
+Saved 21 record(s) to data/processed/weather.csv at 2026-04-08 18:08:28
+
+Pipeline complete! Fetched 21 forecast records.
+```
+
+---
+
+## Data Output
+
+Results are saved to `data/processed/weather.csv` with the following schema:
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `city` | string | City name (e.g., "Tallahassee") |
+| `date` | string | Forecast date in YYYY-MM-DD format |
+| `temperature_max` | float | Max temperature in °C |
+| `temperature_min` | float | Min temperature in °C |
+| `precipitation` | float | Total precipitation in mm |
+| `fetched_at` | string | Timestamp of when the data was fetched |
+
+Each pipeline run appends 7 rows per city (one per forecast day). Running daily will accumulate historical forecast data over time.
+
+---
+
+## Project Structure
+
+```
+automated-data-pipeline/
+├── README.md
+├── src/
+│   ├── pipeline.py      # Main entry point — orchestrates fetch and save
+│   ├── api_client.py    # HTTP requests, JSON parsing, error handling
+│   └── storage.py       # CSV read/write logic
+└── data/
+    └── processed/
+        └── weather.csv  # Accumulated forecast data
+```
